@@ -1,88 +1,60 @@
-require("dotenv").config();
+const { Client, GatewayIntentBits, Collection } = require('discord.js');
+const fs = require('fs');
+const path = require('path');
+require('dotenv').config();
 
-const fs = require("fs");
-const path = require("path");
+const dataManager = require('./utils/dataManager');
+const { startScheduler } = require('./utils/scheduler');
 
-const {
-    Client,
-    GatewayIntentBits,
-    Collection
-} = require("discord.js");
+// Initialize database tracking folders and configuration logs components
+dataManager.initDatabase();
 
 const client = new Client({
     intents: [
-        GatewayIntentBits.Guilds
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages
     ]
 });
 
 client.commands = new Collection();
+const commandsPath = path.join(__dirname, 'commands');
+const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
-/* ===========================
-   Load Commands
-=========================== */
-
-const commandsPath = path.join(__dirname, "commands");
-
-if (fs.existsSync(commandsPath)) {
-    const commandFiles = fs
-        .readdirSync(commandsPath)
-        .filter(file => file.endsWith(".js"));
-
-    for (const file of commandFiles) {
-        const command = require(path.join(commandsPath, file));
-
+for (const file of commandFiles) {
+    const filePath = path.join(commandsPath, file);
+    const command = require(filePath);
+    if ('data' in command && 'execute' in command) {
         client.commands.set(command.data.name, command);
     }
 }
 
-/* ===========================
-   Ready Event
-=========================== */
-
-client.once("ready", () => {
-
-    console.log(`${client.user.tag} is Online ✅`);
-
+client.once('ready', () => {
+    console.log(`Successfully configured system connection trace framework logs active interface profiles targets. Authenticated as: ${client.user.tag}`);
+    // Start automatic scheduler routines processing engines sequence loops allocation tracking mapping operations rules
+    startScheduler(client);
 });
 
-/* ===========================
-   Slash Commands
-=========================== */
-
-client.on("interactionCreate", async interaction => {
-
+client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
     const command = client.commands.get(interaction.commandName);
-
     if (!command) return;
 
     try {
-
-        await command.execute(interaction, client);
-
-    } catch (err) {
-
-        console.error(err);
-
+        await command.execute(interaction);
+    } catch (error) {
+        console.error(`Command routing operational deployment processing error executing command system trace logs sequence maps layout rules ${interaction.commandName}:`, error);
+        const errorPayload = { content: 'There was an error while executing this command!', ephemeral: true };
         if (interaction.replied || interaction.deferred) {
-
-            interaction.followUp({
-                content: "❌ Error while executing command.",
-                ephemeral: true
-            });
-
+            await interaction.followUp(errorPayload);
         } else {
-
-            interaction.reply({
-                content: "❌ Error while executing command.",
-                ephemeral: true
-            });
-
+            await interaction.reply(errorPayload);
         }
-
     }
-
 });
 
-client.login(process.env.TOKEN);
+// Safeguards for process runtime
+process.on('unhandledRejection', error => console.error('Unhandled promise rejection:', error));
+process.on('uncaughtException', error => console.error('Uncaught Exception:', error));
+
+client.login(process.env.DISCORD_TOKEN);
