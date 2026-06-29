@@ -1,16 +1,14 @@
 {
   "name": "idp-bot",
   "version": "1.0.0",
-  "description": "Automatic IDP Bot",
+  "description": "Automated Tournament ID/Password Scheduler Bot",
   "main": "index.js",
-  "type": "commonjs",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "deploy": "node deploy-commands.js"
   },
   "dependencies": {
-    "discord.js": "^14.21.0",
-    "dotenv": "^16.4.7",
-    "fs-extra": "^11.3.0",
-    "node-cron": "^4.2.1"
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.5"
   }
 }
