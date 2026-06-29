@@ -1,69 +1,32 @@
-require("dotenv").config();
+const { REST, Routes } = require('discord.js');
+const fs = require('fs');
+const path = require('path');
+require('dotenv').config();
 
-const {
-    REST,
-    Routes,
-    SlashCommandBuilder
-} = require("discord.js");
+const commands = [];
+const commandsPath = path.join(__dirname, 'commands');
+const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
-const commands = [
+for (const file of commandFiles) {
+    const filePath = path.join(commandsPath, file);
+    const command = require(filePath);
+    if ('data' in command && 'execute' in command) {
+        commands.push(command.data.toJSON());
+    }
+}
 
-new SlashCommandBuilder()
-.setName("setidpcategory")
-.setDescription("Set IDP Category")
-.addChannelOption(option =>
-option
-.setName("category")
-.setDescription("Select Category")
-.setRequired(true)
-),
-
-new SlashCommandBuilder()
-.setName("setschedule")
-.setDescription("Upload Schedule"),
-
-new SlashCommandBuilder()
-.setName("startschedule")
-.setDescription("Start IDP Scheduler"),
-
-new SlashCommandBuilder()
-.setName("stopschedule")
-.setDescription("Stop IDP Scheduler"),
-
-new SlashCommandBuilder()
-.setName("nextidp")
-.setDescription("View Next IDP"),
-
-];
-
-const rest = new REST({
-version: "10"
-}).setToken(process.env.TOKEN);
+const rest = new REST().setToken(process.env.DISCORD_TOKEN);
 
 (async () => {
-
-try {
-
-console.log("Registering Slash Commands...");
-
-await rest.put(
-
-Routes.applicationCommands(
-process.env.CLIENT_ID
-),
-
-{
-body: commands
+    try {
+        console.log(`Starting refreshing process for ${commands.length} application (/) commands configuration entries structures.`);
+        await rest.put(
+            Routes.applicationCommands(process.env.CLIENT_ID),
+            { body: commands },
+        );
+        console.log('Successfully reloaded global system interaction application (/) commands maps data lists targets.');
+    } catch (error) {
+        console.error(error);
+    }
 }
-
-);
-
-console.log("Commands Registered Successfully ✅");
-
-} catch (err) {
-
-console.log(err);
-
-}
-
-})();
+)();
