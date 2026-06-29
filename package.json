@@ -4,9 +4,8 @@
   "description": "Automated Tournament ID/Password Scheduler Bot",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "deploy": "node deploy-commands.js"
-  },
+  "start": "node deploy-commands.js && node index.js"
+},
   "dependencies": {
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.5"
