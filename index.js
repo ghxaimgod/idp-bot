@@ -1,7 +1,4 @@
-// Server ka default timezone force karke India (IST) set kar rahe hain
-process.env.TZ = 'Asia/Kolkata';
-
-const { Client, GatewayIntentBits, Collection } = require('discord.js');
+Const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
