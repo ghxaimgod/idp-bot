@@ -20,6 +20,15 @@ function extractGroupNumber(channelName) {
     return match ? parseInt(match[1], 10) : null;
 }
 
+// Helper to parse time as Indian Standard Time (IST)
+function parseAsIST(timeStr) {
+    // Agar time ke aage timezone info (+05:30) nahi lagi hai, toh use force karke jod do
+    if (!timeStr.includes('+') && !timeStr.endsWith('Z')) {
+        return new Date(`${timeStr}+05:30`);
+    }
+    return new Date(timeStr);
+}
+
 async function checkGuildSchedules(client) {
     const allRuntime = dataManager.getAllRuntime();
 
@@ -41,7 +50,8 @@ async function checkGuildSchedules(client) {
         let updatedSentList = [...sentList];
 
         for (const item of schedule) {
-            const idpTime = new Date(item.idp);
+            // Force parsing JSON time strings as India Time (IST)
+            const idpTime = parseAsIST(item.idp);
             // Unique identifier for duplicate match detection tracking
             const matchKey = `${item.group}-${item.match}-${item.idp}`;
 
@@ -58,7 +68,10 @@ async function checkGuildSchedules(client) {
 
                     if (targetChannel) {
                         const { roomId, password } = generateRoomDetails();
-                        const formattedStartTime = `<t:${Math.floor(new Date(item.start).getTime() / 1000)}:F>`;
+                        
+                        // Start time ko bhi India time zone ke hisab se convert karke unix timestamp nikala
+                        const startTimeUnix = Math.floor(parseAsIST(item.start).getTime() / 1000);
+                        const formattedStartTime = `<t:${startTimeUnix}:F>`;
 
                         const embed = new EmbedBuilder()
                             .setColor(0x00FF00)
@@ -95,4 +108,5 @@ function startScheduler(client) {
 }
 
 module.exports = { 
+  
     startScheduler };
