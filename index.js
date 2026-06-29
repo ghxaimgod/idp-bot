@@ -4,6 +4,7 @@ process.env.TZ = 'Asia/Kolkata';
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
+const http = require('http'); // Added for dummy server
 require('dotenv').config();
 
 const dataManager = require('./utils/dataManager');
@@ -59,5 +60,15 @@ client.on('interactionCreate', async interaction => {
 // Safeguards for process runtime
 process.on('unhandledRejection', error => console.error('Unhandled promise rejection:', error));
 process.on('uncaughtException', error => console.error('Uncaught Exception:', error));
+
+// Dummy server to satisfy Railway's web service health check rules
+const server = http.createServer((req, res) => {
+   res.writeHead(200, { 'Content-Type': 'text/plain' });
+   res.end('Bot is alive and running!\n');
+});
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+   console.log(`Health-check server successfully running on port ${PORT}`);
+});
 
 client.login(process.env.DISCORD_TOKEN);
