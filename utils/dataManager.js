@@ -52,7 +52,5 @@ module.exports = {
         writeJSON(RUNTIME_PATH, runtime);
     },
     
-    // Yahan par problem thi, ab ye bilkul correct hai:
-    getAllRuntime: () => readJSON(RUNTIME_P
-                                  ATH)
+    getAllRuntime: () => readJSON(RUNTIME_PATH)
 };
